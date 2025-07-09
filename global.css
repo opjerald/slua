@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-start {
+    @apply flex items-start justify-center;
+  }
+}
+
+@layer components {
+  .h1-bold {
+    @apply font-opensans-bold text-3xl;
+  }
+
+  .h3-bold {
+    @apply font-opensans-bold text-xl;
+  }
+
+  .base-bold {
+    @apply font-opensans-bold text-lg !important;
+  }
+
+  .base-semibold {
+    @apply font-opensans-semibold text-lg;
+  }
+
+  .base-regular {
+    @apply font-opensans text-lg;
+  }
+
+  .paragraph-bold {
+    @apply font-opensans-bold text-base;
+  }
+
+  .paragraph-semibold {
+    @apply font-opensans-semibold text-base;
+  }
+
+  .paragraph-medium {
+    @apply font-opensans-medium text-base;
+  }
+
+  .body-medium {
+    @apply font-opensans-medium text-sm;
+  }
+
+  .body-regular {
+    @apply font-opensans text-sm;
+  }
+
+  .small-bold {
+    @apply font-opensans-bold text-xs;
+  }
+}
