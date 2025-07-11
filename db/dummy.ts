@@ -1,13 +1,8 @@
 import { ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
-import { AsyncStorage } from "expo-sqlite/kv-store";
-import { schedules, schedulesSongs, songs } from "./schema";
 import * as schema from "./schema";
+import { schedules, schedulesSongs, songs } from "./schema";
 
 export const addDummyData = async (db: ExpoSQLiteDatabase<typeof schema>) => {
-  const value = await AsyncStorage.getItem("dbInitialized");
-
-  if (value) return;
-
   await db.insert(songs).values([
     {
       key: "D",
@@ -64,6 +59,4 @@ export const addDummyData = async (db: ExpoSQLiteDatabase<typeof schema>) => {
       song_id: 5,
     },
   ]);
-
-  AsyncStorage.setItem("dbInitialized", "true");
 };

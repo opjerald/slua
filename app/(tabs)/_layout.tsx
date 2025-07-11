@@ -42,12 +42,11 @@ const TabsLayout = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          borderTopLeftRadius: 50,
-          borderTopRightRadius: 50,
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30,
           height: 110,
-          position: "absolute",
           backgroundColor: "#181C2E",
-          shadowColor: "#1A1A1A",
+          shadowColor: "#000",
           shadowOffset: {
             width: 0,
             height: 2,

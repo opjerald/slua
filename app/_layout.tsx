@@ -1,15 +1,18 @@
 import "../global.css";
 
 import { DATABASE_NAME, db, expo_sqlite } from "@/db/client";
-import { addDummyData } from "@/db/dummy";
 import migrations from "@/drizzle/migrations";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import { Suspense, useEffect } from "react";
-import { ActivityIndicator } from "react-native";
+import {
+  ActivityIndicator
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,13 +30,8 @@ const RootLayout = () => {
   useDrizzleStudio(expo_sqlite);
 
   useEffect(() => {
-    if (success) {
-      addDummyData(db);
-    }
-
-    if (migrationError) throw migrationError;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!success && migrationError) throw migrationError;
+  }, [migrationError, success]);
 
   useEffect(() => {
     if (error) throw error;
@@ -43,19 +41,23 @@ const RootLayout = () => {
   if (!fontsLoaded) return null;
 
   return (
-    <Suspense fallback={<ActivityIndicator size="large" />}>
-      <SQLiteProvider
-        databaseName={DATABASE_NAME}
-        options={{ enableChangeListener: true }}
-        useSuspense
-      >
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
-      </SQLiteProvider>
-    </Suspense>
+    <GestureHandlerRootView className="flex-1">
+      <BottomSheetModalProvider>
+        <Suspense fallback={<ActivityIndicator size="large" />}>
+          <SQLiteProvider
+            databaseName={DATABASE_NAME}
+            options={{ enableChangeListener: true }}
+            useSuspense
+          >
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          </SQLiteProvider>
+        </Suspense>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 };
 
