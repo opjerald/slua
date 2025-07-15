@@ -10,15 +10,15 @@ const SongCard = ({ item, onLongPress }: SongCardProps) => {
   return (
     <TouchableOpacity
       onLongPress={onLongPress}
-      className="mb-2 h-[70px] w-full flex-row items-center gap-5 overflow-hidden rounded-xl bg-white p-3 shadow-lg"
+      className="mb-2 h-[70px] w-full flex-row items-center gap-5 overflow-hidden rounded-xl bg-card p-3 shadow-lg"
       activeOpacity={0.8}
     >
       <View className="h-full w-1.5 rounded-full bg-primary" />
       <View className="flex-1">
-        <Text className="base-bold text-dark-100" numberOfLines={1}>
+        <Text className="base-bold text-card-foreground" numberOfLines={1}>
           {item.title}
         </Text>
-        <Text className="paragraph-semibold text-gray-400" numberOfLines={1}>
+        <Text className="paragraph-semibold text-muted-foreground" numberOfLines={1}>
           {item.artist}
         </Text>
       </View>

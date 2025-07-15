@@ -1,22 +1,32 @@
-import { images } from "@/constant";
+import Icon from "@/components/icon";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { NAV_THEME } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { TabBarIconProps } from "@/type";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
-import cn from "clsx";
 import { Tabs } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import { Calendar, Music, Music2 } from "lucide-react-native";
+import { Pressable, Text, View } from "react-native";
 
-const TabBarIcon = ({ focused, icon, title }: TabBarIconProps) => (
-  <View className="flex min-w-20 items-center justify-center min-h-full gap-1 mt-12 h-[80px]">
-    <Image
-      source={icon}
-      className="size-7"
-      resizeMode="contain"
-      tintColor={focused ? "#c27aff" : "#fff"}
+const TabBarIcon = ({ focused, icon: LucideIcon, title }: TabBarIconProps) => (
+  <View className="mt-12 flex h-[80px] min-h-full min-w-20 items-center justify-center gap-1">
+    <Icon
+      icon={LucideIcon}
+      className={cn(
+        "size-8",
+        focused ? "text-primary" : "text-muted-foreground",
+      )}
     />
-    <Text className={cn("text-sm font-opensans-bold", focused ? "text-primary" : "text-white")}>
+    <Text
+      className={cn(
+        "font-opensans-bold text-sm",
+        focused ? "text-primary" : "text-muted-foreground",
+      )}
+    >
       {title}
     </Text>
   </View>
-)
+);
 
 const TabBarButton = ({
   children,
@@ -36,6 +46,7 @@ const TabBarButton = ({
 );
 
 const TabsLayout = () => {
+  const { colorScheme } = useColorScheme();
   return (
     <Tabs
       screenOptions={{
@@ -45,7 +56,7 @@ const TabsLayout = () => {
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30,
           height: 110,
-          backgroundColor: "#181C2E",
+          backgroundColor: NAV_THEME[colorScheme].card,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
@@ -54,31 +65,37 @@ const TabsLayout = () => {
           shadowOpacity: 0.1,
           shadowRadius: 4,
           elevation: 5,
-        }
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Songs",
-          tabBarIcon: ({focused}) => <TabBarIcon title="Songs" icon={images.songs} focused={focused} />,
-          tabBarButton: TabBarButton
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon title="Songs" icon={Music} focused={focused} />
+          ),
+          tabBarButton: TabBarButton,
         }}
       />
       <Tabs.Screen
         name="schedules"
         options={{
           title: "Schedules",
-          tabBarIcon: ({focused}) => <TabBarIcon title="Schedules" icon={images.calendar} focused={focused} />,
-          tabBarButton: TabBarButton
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon title="Schedules" icon={Calendar} focused={focused} />
+          ),
+          tabBarButton: TabBarButton,
         }}
       />
       <Tabs.Screen
         name="lyrics"
         options={{
           title: "Lyrics",
-          tabBarIcon: ({focused}) => <TabBarIcon title="Lyrics" icon={images.lyrics} focused={focused} />,
-          tabBarButton: TabBarButton
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon title="Lyrics" icon={Music2} focused={focused} />
+          ),
+          tabBarButton: TabBarButton,
         }}
       />
     </Tabs>

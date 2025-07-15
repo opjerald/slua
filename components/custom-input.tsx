@@ -1,7 +1,6 @@
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import cn from "clsx";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 interface CustomInputProps {
   placeholder?: string;
@@ -27,7 +26,7 @@ const CustomInput = ({
   return (
     <View className="w-full">
       <Text className={cn("text-base text-start w-full font-opensans-medium text-primary", labelClassName)}>{label}</Text>
-      <BottomSheetTextInput
+      <TextInput
         autoCapitalize="none"
         autoCorrect={false}
         value={value}
