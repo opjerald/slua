@@ -6,6 +6,7 @@ export const DATABASE_NAME = "database.db";
 
 export const expo_sqlite = openDatabaseSync(DATABASE_NAME, {
   enableChangeListener: true,
+  useNewConnection: true,
 });
 
 export const db = drizzle(expo_sqlite, { schema });

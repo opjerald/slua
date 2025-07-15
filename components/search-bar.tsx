@@ -1,7 +1,8 @@
-import { images } from "@/constant";
 import { router, useLocalSearchParams } from "expo-router";
+import { Search } from "lucide-react-native";
 import { useState } from "react";
-import { Image, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
+import Icon from "./icon";
 
 const SearchBar = () => {
   const params = useLocalSearchParams<{ query?: string }>();
@@ -17,7 +18,7 @@ const SearchBar = () => {
   };
 
   return (
-    <View className="relative flex w-full flex-row items-center justify-center gap-5 rounded-full bg-white font-opensans-medium text-dark-100 shadow-md shadow-black/10">
+    <View className="relative flex w-full flex-row items-center justify-center gap-5 rounded-full bg-input font-opensans-medium text-dark-100 shadow-md shadow-black/10">
       <TextInput
         className="flex-1 p-5"
         placeholder="Search for songs, artists, etc..."
@@ -31,12 +32,7 @@ const SearchBar = () => {
         className="pr-5"
         onPress={() => router.setParams({ query })}
       >
-        <Image
-          source={images.search}
-          className="size-6"
-          resizeMode="cover"
-          tintColor="#181C2E"
-        />
+        <Icon icon={Search} className="size-8 text-foreground" />
       </TouchableOpacity>
     </View>
   );
