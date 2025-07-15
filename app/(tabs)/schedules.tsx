@@ -1,17 +1,39 @@
-import { db } from "@/db/client";
-import { addDummyData } from "@/db/dummy";
-import { hardResetDatabase } from "@/db/reset";
-import { Button, Text } from "react-native";
+import CustomInput from "@/components/custom-input";
+import { BottomSheet, useBottomSheet } from "@/components/ui/bottom-sheet";
+import {
+  Button,
+  Keyboard,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Schedules = () => {
-    return ( 
-        <SafeAreaView>
-            <Text>Schedules</Text>
-            <Button title="reset database" onPress={() => hardResetDatabase(db)} />
-            <Button title="Seed" onPress={() => addDummyData(db)} />
-        </SafeAreaView>
-     );
-}
- 
+  const { isVisible, open, close } = useBottomSheet();
+
+  return (
+    <SafeAreaView>
+      <Text>Schedules</Text>
+      <Button title="Open" onPress={open} />
+      <BottomSheet
+        isVisible={isVisible}
+        onClose={close}
+        title="Add Song"
+        snapPoints={[0.3]}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View className="gap-4">
+            <CustomInput
+              label="Title"
+              placeholder="Enter song title"
+              onChangeText={console.log}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+      </BottomSheet>
+    </SafeAreaView>
+  );
+};
+
 export default Schedules;

@@ -1,18 +1,21 @@
-import Icon from "@/components/icon";
 import SearchBar from "@/components/search-bar";
 import SongCard from "@/components/song-card";
+import { ActionSheet } from "@/components/ui/action-sheet";
+import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { getSongs } from "@/lib/action";
 import useQuery from "@/lib/use-query";
 import { useLocalSearchParams } from "expo-router";
-import { Plus } from "lucide-react-native";
-import { useEffect } from "react";
+import { Edit2, Eye, Plus, Trash } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Index = () => {
   const { query } = useLocalSearchParams<{ query: string }>();
   const { toggleColorScheme } = useColorScheme();
+
+  const [isVisible, setIsVisible] = useState(false);
 
   const { data, refetch } = useQuery({
     fn: getSongs,
@@ -31,7 +34,7 @@ const Index = () => {
         data={data}
         keyExtractor={(item) => item.id + ""}
         renderItem={({ item }) => (
-          <SongCard item={item} onLongPress={() => {}} />
+          <SongCard item={item} onLongPress={() => setIsVisible(true)} />
         )}
         contentContainerClassName="pb-24 px-5"
         ListHeaderComponent={() => (
@@ -60,6 +63,29 @@ const Index = () => {
         ListEmptyComponent={() => (
           <Text className="base-bold text-gray-200">No songs yet</Text>
         )}
+      />
+      <ActionSheet
+        title="Choose an action"
+        visible={isVisible}
+        onClose={() => setIsVisible(false)}
+        options={[
+          {
+            title: "View",
+            onPress: () => console.log("View"),
+            icon: <Icon icon={Eye} className="text-foreground" />,
+          },
+          {
+            title: "Edit",
+            onPress: () => console.log("Edit"),
+            icon: <Icon icon={Edit2} className="text-foreground" />,
+          },
+          {
+            title: "Delete",
+            onPress: () => console.log("Update"),
+            icon: <Icon icon={Trash} className="text-destructive" />,
+            destructive: true,
+          },
+        ]}
       />
     </SafeAreaView>
   );

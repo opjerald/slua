@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Search } from "lucide-react-native";
 import { useState } from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
-import Icon from "./icon";
+import Icon from "./ui/icon";
 
 const SearchBar = () => {
   const params = useLocalSearchParams<{ query?: string }>();
@@ -20,7 +20,7 @@ const SearchBar = () => {
   return (
     <View className="relative flex w-full flex-row items-center justify-center gap-5 rounded-full bg-input font-opensans-medium text-dark-100 shadow-md shadow-black/10">
       <TextInput
-        className="flex-1 p-5"
+        className="flex-1 p-5 text-foreground"
         placeholder="Search for songs, artists, etc..."
         placeholderTextColor="#878787"
         value={query}

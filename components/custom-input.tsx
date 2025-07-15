@@ -1,3 +1,4 @@
+import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Text, TextInput, View } from "react-native";
@@ -24,8 +25,15 @@ const CustomInput = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View className="w-full">
-      <Text className={cn("text-base text-start w-full font-opensans-medium text-primary", labelClassName)}>{label}</Text>
+    <View className="w-full gap-2">
+      <Text
+        className={cn(
+          "w-full text-start font-opensans-semibold text-lg text-primary",
+          labelClassName,
+        )}
+      >
+        {label}
+      </Text>
       <TextInput
         autoCapitalize="none"
         autoCorrect={false}
@@ -36,10 +44,10 @@ const CustomInput = ({
         keyboardType={keyboardType}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholderTextColor="#888"
+        placeholderTextColor={NAV_THEME["light"].mutedForeground}
         className={cn(
-          "py-3 w-full text-base font-opensans-semibold text-white border-b",
-          isFocused ? "border-primary" : "border-gray-300",
+          "w-full rounded-full border-2 bg-input p-5 font-opensans-semibold text-base text-foreground",
+          isFocused ? "border-primary" : "border-border",
         )}
       />
     </View>

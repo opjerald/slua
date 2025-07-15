@@ -16,6 +16,7 @@ export function iconWithClassName(icon: LucideIcon) {
         opacity: true,
         width: true,
         height: true,
+        fill: true,
       },
     }
   })

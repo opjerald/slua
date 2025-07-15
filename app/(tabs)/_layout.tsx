@@ -1,4 +1,4 @@
-import Icon from "@/components/icon";
+import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const TabBarIcon = ({ focused, icon: LucideIcon, title }: TabBarIconProps) => (
         "size-8",
         focused ? "text-primary" : "text-muted-foreground",
       )}
+      strokeWidth={2.3}
     />
     <Text
       className={cn(
@@ -57,6 +58,8 @@ const TabsLayout = () => {
           borderTopRightRadius: 30,
           height: 110,
           backgroundColor: NAV_THEME[colorScheme].card,
+          borderWidth: 1,
+          borderColor: NAV_THEME[colorScheme].border,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
