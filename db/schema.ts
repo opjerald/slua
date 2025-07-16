@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
 } from "drizzle-orm/sqlite-core";
+import { createInsertSchema } from "drizzle-zod";
 
 export const songs = sqliteTable("songs", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -52,3 +53,9 @@ export const scheduleSongRelations = relations(schedulesSongs, ({ one }) => ({
 
 export type Song = typeof songs.$inferSelect;
 export type Schedule = typeof schedules.$inferSelect;
+
+export const insertSongSchema = createInsertSchema(songs, {
+  title: (schema) => schema.min(1, "Title is required"),
+  artist: (schema) => schema.min(1, "Artist is required"),
+  key: (schema) => schema.min(1, "Key is required")
+});

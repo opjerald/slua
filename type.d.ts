@@ -5,10 +5,3 @@ interface TabBarIconProps {
   icon: LucideIcon;
   title: string;
 }
-
-interface Song {
-  id: string;
-  title: string;
-  artist: string;
-  key: string;
-}

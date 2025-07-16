@@ -1,6 +1,7 @@
 import "../global.css";
 
-import { DATABASE_NAME, expo_sqlite } from "@/db/client";
+import { DATABASE_NAME, db, expo_sqlite } from "@/db/client";
+import migrations from "@/drizzle/migrations";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import {
@@ -9,6 +10,7 @@ import {
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
@@ -43,7 +45,7 @@ const RootLayout = () => {
     "OpenSans-SemiBold": require("../assets/fonts/OpenSans-SemiBold.ttf"),
   });
 
-  // const { success, error: migrationError } = useMigrations(db, migrations);
+  const { success, error: migrationError } = useMigrations(db, migrations);
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -52,12 +54,14 @@ const RootLayout = () => {
 
   useEffect(() => {
     if (error) throw error;
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded, error]);
+    if (migrationError) throw migrationError;
+  }, [error, migrationError]);
 
-  // useEffect(() => {
-  //   if (!success && migrationError) throw migrationError;
-  // }, [migrationError, success]);
+  useEffect(() => {
+    if(fontsLoaded && success) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, success]);
 
   useLayoutEffect(() => {
     if (hasMounted.current) return;

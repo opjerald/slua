@@ -1,9 +1,11 @@
 import SearchBar from "@/components/search-bar";
 import SongCard from "@/components/song-card";
+import SongForm from "@/components/song-form";
 import { ActionSheet } from "@/components/ui/action-sheet";
+import { BottomSheet, useBottomSheet } from "@/components/ui/bottom-sheet";
 import Icon from "@/components/ui/icon";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { getSongs } from "@/lib/action";
+import { Song } from "@/db/schema";
+import { deleteSong, getSongs } from "@/lib/action";
 import useQuery from "@/lib/use-query";
 import { useLocalSearchParams } from "expo-router";
 import { Edit2, Eye, Plus, Trash } from "lucide-react-native";
@@ -13,9 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Index = () => {
   const { query } = useLocalSearchParams<{ query: string }>();
-  const { toggleColorScheme } = useColorScheme();
+
+  const { isVisible: bottomSheetIsVisible, open, close } = useBottomSheet();
 
   const [isVisible, setIsVisible] = useState(false);
+  const [formTitle, setFormTitle] = useState("Add Song");
+  const [action, setAction] = useState<"create" | "update">("create");
+  const [selectedSong, setSelectedSong] = useState<Song | undefined>(undefined);
 
   const { data, refetch } = useQuery({
     fn: getSongs,
@@ -34,7 +40,13 @@ const Index = () => {
         data={data}
         keyExtractor={(item) => item.id + ""}
         renderItem={({ item }) => (
-          <SongCard item={item} onLongPress={() => setIsVisible(true)} />
+          <SongCard
+            item={item}
+            onLongPress={() => {
+              setSelectedSong(item);
+              setIsVisible(true);
+            }}
+          />
         )}
         contentContainerClassName="pb-24 px-5"
         ListHeaderComponent={() => (
@@ -52,7 +64,12 @@ const Index = () => {
               </View>
               <TouchableOpacity
                 className="flex size-10 items-center justify-center rounded-full bg-primary"
-                onPress={() => toggleColorScheme()}
+                onPress={() => {
+                  setFormTitle("Add Song");
+                  setAction("create");
+                  setSelectedSong(undefined);
+                  open();
+                }}
               >
                 <Icon icon={Plus} className="size-6 text-white" />
               </TouchableOpacity>
@@ -76,17 +93,44 @@ const Index = () => {
           },
           {
             title: "Edit",
-            onPress: () => console.log("Edit"),
+            onPress: () => {
+              setFormTitle("Edit Song");
+              setAction("update");
+              open();
+            },
             icon: <Icon icon={Edit2} className="text-foreground" />,
           },
           {
             title: "Delete",
-            onPress: () => console.log("Update"),
+            onPress: async () => {
+              await deleteSong(selectedSong?.id!);
+              refetch({ query });
+            },
             icon: <Icon icon={Trash} className="text-destructive" />,
             destructive: true,
           },
         ]}
       />
+      <BottomSheet
+        isVisible={bottomSheetIsVisible}
+        onClose={close}
+        title={formTitle}
+        snapPoints={[0.95]}
+      >
+        <SongForm
+          song={selectedSong}
+          action={action}
+          onClose={(success) => {
+            if (success) {
+              refetch({ query });
+            }
+            setFormTitle("Add Song");
+            setAction("create");
+            setSelectedSong(undefined);
+            close();
+          }}
+        />
+      </BottomSheet>
     </SafeAreaView>
   );
 };
