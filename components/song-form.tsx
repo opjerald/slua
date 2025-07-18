@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Text, TouchableOpacity, View } from "react-native";
 import CustomInput from "./custom-input";
 import { Picker } from "./ui/picker";
+import { useToast } from "./ui/toast";
 
 interface SongFormProps {
   song?: Song;
@@ -14,6 +15,8 @@ interface SongFormProps {
 }
 
 const SongForm = ({ song, action, onClose }: SongFormProps) => {
+  const {toast} = useToast();
+
   const {
     control,
     handleSubmit,
@@ -31,8 +34,18 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
   const onSubmit = async (data: Omit<Song, "id">) => {
     if(action === "create") {
       await addSong(data);
+      toast({
+        title: "Created",
+        description: "Song created successfully!",
+        variant: "info",
+      })
     } else {
       await updateSong(song?.id!, data);
+      toast({
+        title: "Updated",
+        description: "Song updated successfully!",
+        variant: "info",
+      })
     }
     onClose?.(true);
   };
@@ -105,6 +118,15 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
       />
       <View className="mt-5 justify-between gap-4">
         <TouchableOpacity
+          className="rounded-full border border-primary bg-primary p-5"
+          onPress={handleSubmit(onSubmit)}
+          activeOpacity={0.8}
+        >
+          <Text className="text-center font-opensans-semibold text-base text-primary-foreground">
+            {action === "create" ? "Create" : "Update"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           className=" rounded-full border border-border bg-accent p-5"
           activeOpacity={0.8}
           onPress={() => {
@@ -114,15 +136,6 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
         >
           <Text className="text-center font-opensans-semibold text-base text-accent-foreground">
             Cancel
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="rounded-full border border-primary bg-primary p-5"
-          onPress={handleSubmit(onSubmit)}
-          activeOpacity={0.8}
-        >
-          <Text className="text-center font-opensans-semibold text-base text-primary-foreground">
-            {action === "create" ? "Create" : "Update"}
           </Text>
         </TouchableOpacity>
       </View>
