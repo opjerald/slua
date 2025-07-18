@@ -18,7 +18,6 @@ import { SplashScreen, Stack } from "expo-router";
 import { SQLiteProvider } from "expo-sqlite";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -76,21 +75,19 @@ const RootLayout = () => {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <ToastProvider>
-        <GestureHandlerRootView className="flex-1">
-          <Suspense fallback={<ActivityIndicator size="large" />}>
-            <SQLiteProvider
-              databaseName={DATABASE_NAME}
-              options={{ enableChangeListener: true }}
-              useSuspense
-            >
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                }}
-              />
-            </SQLiteProvider>
-          </Suspense>
-        </GestureHandlerRootView>
+        <Suspense fallback={<ActivityIndicator size="large" />}>
+          <SQLiteProvider
+            databaseName={DATABASE_NAME}
+            options={{ enableChangeListener: true }}
+            useSuspense
+          >
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          </SQLiteProvider>
+        </Suspense>
       </ToastProvider>
     </ThemeProvider>
   );

@@ -9,7 +9,7 @@ interface GetSongsProps {
 export const getSongs = async ({ query }: GetSongsProps) => {
   try {
     if (!query || query.trim() === "") {
-      return await db.select().from(songs);
+      return await db.select().from(songs).orderBy(songs.title);
     }
 
     return await db
@@ -17,7 +17,8 @@ export const getSongs = async ({ query }: GetSongsProps) => {
       .from(songs)
       .where(
         or(like(songs.title, `%${query}%`), like(songs.artist, `%${query}%`)),
-      );
+      )
+      .orderBy(songs.title);
   } catch (error) {
     throw new Error(error as string);
   }
@@ -33,11 +34,7 @@ export const addSong = async (data: Omit<Song, "id">) => {
 
 export const updateSong = async (id: number, data: Omit<Song, "id">) => {
   try {
-    return await db
-      .update(songs)
-      .set(data)
-      .where(eq(songs.id, id))
-      .returning();
+    return await db.update(songs).set(data).where(eq(songs.id, id)).returning();
   } catch (error) {
     throw new Error(`Failed to update song: ${(error as Error).message}`);
   }
@@ -45,11 +42,30 @@ export const updateSong = async (id: number, data: Omit<Song, "id">) => {
 
 export const deleteSong = async (id: number) => {
   try {
-    return await db
-      .delete(songs)
-      .where(eq(songs.id, id))
-      .returning();
+    return await db.delete(songs).where(eq(songs.id, id)).returning();
   } catch (error) {
     throw new Error(`Failed to delete song: ${(error as Error).message}`);
+  }
+};
+
+export const getSchedules = async () => {
+  try {
+    const data = await db.query.schedules.findMany({
+      with: {
+        schedulesSongs: {
+          with: {
+            song: true,
+          },
+        },
+      },
+    });
+
+    return data.map((d) => ({
+      id: d.id,
+      name: d.name,
+      songs: d.schedulesSongs.map((ss) => ss.song),
+    }));
+  } catch (error) {
+    throw new Error(error as string);
   }
 };

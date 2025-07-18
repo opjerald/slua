@@ -15,7 +15,7 @@ const SongCard = ({ item, onPress }: SongCardProps) => {
     >
       <View className="h-full w-1.5 rounded-full bg-primary" />
       <View className="flex-1">
-        <Text className="base-bold text-card-foreground" numberOfLines={1}>
+        <Text className="base-bold text-foreground" numberOfLines={1}>
           {item.title}
         </Text>
         <Text className="paragraph-semibold text-muted-foreground" numberOfLines={1}>

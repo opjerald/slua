@@ -2,14 +2,19 @@ import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { TabBarIconProps } from "@/type";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
-import { Calendar, Music, Music2 } from "lucide-react-native";
+import { Calendar, LucideIcon, Music, Music2, Settings2 } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
+interface TabBarIconProps {
+  focused: boolean;
+  icon: LucideIcon;
+  title: string;
+}
+
 const TabBarIcon = ({ focused, icon: LucideIcon, title }: TabBarIconProps) => (
-  <View className="mt-12 flex h-[80px] min-h-full min-w-20 items-center justify-center gap-1">
+  <View className="mt-12 flex min-h-full min-w-20 items-center justify-center gap-1">
     <Icon
       icon={LucideIcon}
       className={cn(
@@ -60,6 +65,7 @@ const TabsLayout = () => {
           backgroundColor: NAV_THEME[colorScheme].card,
           borderWidth: 1,
           borderColor: NAV_THEME[colorScheme].border,
+          marginTop: 20,
           shadowColor: "#000",
           shadowOffset: {
             width: 0,
@@ -97,6 +103,16 @@ const TabsLayout = () => {
           title: "Lyrics",
           tabBarIcon: ({ focused }) => (
             <TabBarIcon title="Lyrics" icon={Music2} focused={focused} />
+          ),
+          tabBarButton: TabBarButton,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ focused }) => (
+            <TabBarIcon title="Settings" icon={Settings2} focused={focused} />
           ),
           tabBarButton: TabBarButton,
         }}

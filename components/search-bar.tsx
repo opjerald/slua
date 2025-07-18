@@ -1,39 +1,42 @@
-import { router, useLocalSearchParams } from "expo-router";
-import { Search } from "lucide-react-native";
-import { useState } from "react";
-import { TextInput, TouchableOpacity, View } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { NAV_THEME } from "@/lib/constants";
+import { Search, XCircle } from "lucide-react-native";
+import { Keyboard, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from "./ui/icon";
 
-const SearchBar = () => {
-  const params = useLocalSearchParams<{ query?: string }>();
-  const [query, setQuery] = useState(params.query);
+interface SearchBarProps {
+  value?: string;
+  onChangeText?: (value: string) => void;
+}
 
-  const handleSearch = (text: string) => {
-    setQuery(text);
-    if (!text) router.setParams({ query: undefined });
-  };
-
-  const handleSubmit = () => {
-    if (query?.trim()) router.setParams({ query });
-  };
-
+const SearchBar = ({ value, onChangeText }: SearchBarProps) => {
+  const { colorScheme } = useColorScheme();
   return (
-    <View className="relative flex w-full flex-row items-center justify-center gap-5 rounded-full bg-input font-opensans-medium text-dark-100 shadow-md shadow-black/10">
+    <View className="relative flex w-full flex-row items-center justify-center gap-1 rounded-full bg-input font-opensans-medium text-muted-foreground shadow-md shadow-black/10">
+      <View className="pl-4">
+        <Icon icon={Search} className="size-7 text-foreground" />
+      </View>
       <TextInput
-        className="flex-1 p-5 text-foreground"
+        className="flex-1 py-5 font-opensans text-base text-foreground"
         placeholder="Search for songs, artists, etc..."
-        placeholderTextColor="#878787"
-        value={query}
-        onChangeText={handleSearch}
-        onSubmitEditing={handleSubmit}
+        placeholderTextColor={NAV_THEME[colorScheme].mutedForeground}
+        onChangeText={onChangeText}
+        value={value}
+        onSubmitEditing={(e) => onChangeText?.(e.nativeEvent.text)}
         returnKeyType="search"
       />
-      <TouchableOpacity
-        className="pr-5"
-        onPress={() => router.setParams({ query })}
-      >
-        <Icon icon={Search} className="size-8 text-foreground" />
-      </TouchableOpacity>
+      {!!value && (
+        <TouchableOpacity
+          className="pr-4"
+          activeOpacity={0.8}
+          onPress={() => {
+            onChangeText?.("");
+            Keyboard.dismiss();
+          }}
+        >
+          <Icon icon={XCircle} className="size-7 text-accent-foreground" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

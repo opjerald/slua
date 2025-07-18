@@ -22,6 +22,7 @@
     "drizzle-zod": "^0.8.2",
     "expo": "~53.0.17",
     "expo-blur": "~14.1.5",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-drizzle-studio-plugin": "^0.2.0",
     "expo-font": "~13.3.2",
@@ -48,7 +49,7 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "tailwind-merge": "^3.3.1",
-    "zod": "^4.0.5"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

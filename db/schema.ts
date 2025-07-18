@@ -32,12 +32,12 @@ export const schedulesSongs = sqliteTable(
   {
     schedule_id: integer("schedule_id")
       .notNull()
-      .references(() => schedules.id),
+      .references(() => schedules.id, { onDelete: "cascade" }),
     song_id: integer("song_id")
       .notNull()
-      .references(() => songs.id),
+      .references(() => songs.id, { onDelete: "cascade" }),
   },
-  (t) => [primaryKey({ columns: [t.song_id, t.schedule_id] })]
+  (t) => [primaryKey({ columns: [t.song_id, t.schedule_id] })],
 );
 
 export const scheduleSongRelations = relations(schedulesSongs, ({ one }) => ({
@@ -53,9 +53,10 @@ export const scheduleSongRelations = relations(schedulesSongs, ({ one }) => ({
 
 export type Song = typeof songs.$inferSelect;
 export type Schedule = typeof schedules.$inferSelect;
+export type ScheduleSong = Schedule & { songs: Song[] };
 
 export const insertSongSchema = createInsertSchema(songs, {
   title: (schema) => schema.min(1, "Title is required"),
   artist: (schema) => schema.min(1, "Artist is required"),
-  key: (schema) => schema.min(1, "Key is required")
+  key: (schema) => schema.min(1, "Key is required"),
 });

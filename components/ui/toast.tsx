@@ -235,7 +235,7 @@ export function Toast({
           onPressOut={resumeTimeout}
         >
           <Animated.View
-            className="bg-accent border border-border justify-center items-center overflow-hidden"
+            className="bg-muted border border-border justify-center items-center overflow-hidden"
             style={innerStyle}
           >
             {!isExpanded && (
@@ -389,7 +389,7 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
 
   return (
     <ToastContext.Provider value={contextValue}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView className='flex-1'>
         {children}
         <View className='absolute inset-0 z-[1000] pointer-events-box-none' pointerEvents='box-none'>
           {toasts.map((toast, index) => (
