@@ -3,13 +3,13 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 interface SongCardProps {
   item: Song;
-  onLongPress: () => void;
+  onPress: () => void;
 }
 
-const SongCard = ({ item, onLongPress }: SongCardProps) => {
+const SongCard = ({ item, onPress }: SongCardProps) => {
   return (
     <TouchableOpacity
-      onLongPress={onLongPress}
+      onPress={onPress}
       className="mb-2 h-[70px] w-full flex-row items-center gap-5 overflow-hidden rounded-xl bg-card p-3 shadow-lg"
       activeOpacity={0.8}
     >

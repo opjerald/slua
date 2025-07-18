@@ -1,5 +1,6 @@
 import "../global.css";
 
+import { ToastProvider } from "@/components/ui/toast";
 import { DATABASE_NAME, db, expo_sqlite } from "@/db/client";
 import migrations from "@/drizzle/migrations";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -58,7 +59,7 @@ const RootLayout = () => {
   }, [error, migrationError]);
 
   useEffect(() => {
-    if(fontsLoaded && success) {
+    if (fontsLoaded && success) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, success]);
@@ -74,21 +75,23 @@ const RootLayout = () => {
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <GestureHandlerRootView className="flex-1">
-        <Suspense fallback={<ActivityIndicator size="large" />}>
-          <SQLiteProvider
-            databaseName={DATABASE_NAME}
-            options={{ enableChangeListener: true }}
-            useSuspense
-          >
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            />
-          </SQLiteProvider>
-        </Suspense>
-      </GestureHandlerRootView>
+      <ToastProvider>
+        <GestureHandlerRootView className="flex-1">
+          <Suspense fallback={<ActivityIndicator size="large" />}>
+            <SQLiteProvider
+              databaseName={DATABASE_NAME}
+              options={{ enableChangeListener: true }}
+              useSuspense
+            >
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                }}
+              />
+            </SQLiteProvider>
+          </Suspense>
+        </GestureHandlerRootView>
+      </ToastProvider>
     </ThemeProvider>
   );
 };

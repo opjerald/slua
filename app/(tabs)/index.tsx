@@ -2,8 +2,10 @@ import SearchBar from "@/components/search-bar";
 import SongCard from "@/components/song-card";
 import SongForm from "@/components/song-form";
 import { ActionSheet } from "@/components/ui/action-sheet";
+import { showConfirmAlert } from "@/components/ui/alert";
 import { BottomSheet, useBottomSheet } from "@/components/ui/bottom-sheet";
 import Icon from "@/components/ui/icon";
+import { useToast } from "@/components/ui/toast";
 import { Song } from "@/db/schema";
 import { deleteSong, getSongs } from "@/lib/action";
 import useQuery from "@/lib/use-query";
@@ -17,6 +19,7 @@ const Index = () => {
   const { query } = useLocalSearchParams<{ query: string }>();
 
   const { isVisible: bottomSheetIsVisible, open, close } = useBottomSheet();
+  const { toast } = useToast();
 
   const [isVisible, setIsVisible] = useState(false);
   const [formTitle, setFormTitle] = useState("Add Song");
@@ -34,6 +37,23 @@ const Index = () => {
     refetch({ query });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
+
+  const handleConfirmAlert = () => {
+    showConfirmAlert(
+      'Delete Song',
+      'Are you sure you want to delete this song?',
+      async () => {
+        await deleteSong(selectedSong?.id!);
+        refetch({ query });
+        toast({
+          title: "Deleted",
+          description: "Song deleted successfully!",
+          variant: "info"
+        });
+      }
+    )
+  }
+
   return (
     <SafeAreaView className="h-full">
       <FlatList
@@ -42,7 +62,7 @@ const Index = () => {
         renderItem={({ item }) => (
           <SongCard
             item={item}
-            onLongPress={() => {
+            onPress={() => {
               setSelectedSong(item);
               setIsVisible(true);
             }}
@@ -102,10 +122,7 @@ const Index = () => {
           },
           {
             title: "Delete",
-            onPress: async () => {
-              await deleteSong(selectedSong?.id!);
-              refetch({ query });
-            },
+            onPress: () => handleConfirmAlert(),
             icon: <Icon icon={Trash} className="text-destructive" />,
             destructive: true,
           },
