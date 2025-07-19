@@ -1,8 +1,8 @@
+import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { Search, XCircle } from "lucide-react-native";
 import { Keyboard, TextInput, TouchableOpacity, View } from "react-native";
-import Icon from "./ui/icon";
 
 interface SearchBarProps {
   value?: string;

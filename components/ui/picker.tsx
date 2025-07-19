@@ -1,3 +1,4 @@
+import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import Icon from "./icon";
 
 export interface PickerOption {
   label: string;
@@ -77,7 +77,7 @@ export function Picker({
 }: PickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const {colorScheme} = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   const normalizedSections: PickerSection[] =
     sections.length > 0 ? sections : [{ options }];
@@ -186,11 +186,11 @@ export function Picker({
         activeOpacity={1}
         className={cn(
           "w-full flex-row items-center rounded-full",
-          variant === "group"
-            ? "min-h-[auto] border-0 px-0"
-            : "border p-5",
+          variant === "group" ? "min-h-[auto] border-0 px-0" : "border p-5",
           variant === "outline" ? "border-border" : "border-card",
-          variant === "filled" ? "bg-input border-2 border-border" : "bg-transparent",
+          variant === "filled"
+            ? "border-2 border-border bg-input"
+            : "bg-transparent",
           className,
         )}
       >
@@ -204,10 +204,7 @@ export function Picker({
           {icon && (
             <Icon
               icon={icon}
-              className={cn(
-                "size-4",
-                error ? "text-destructive" : "",
-              )}
+              className={cn("size-4", error ? "text-destructive" : "")}
             />
           )}
           {label && (
@@ -228,7 +225,7 @@ export function Picker({
         <View className="flex-1 flex-row items-center justify-between bg-input">
           <Text
             className={cn(
-              "text-base font-opensans-semibold text-muted-foreground",
+              "font-opensans-semibold text-base text-muted-foreground",
               selectedOptions.length > 0 && "text-foreground",
               disabled && "text-muted-foreground",
               inputClassName,

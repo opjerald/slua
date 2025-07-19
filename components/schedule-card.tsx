@@ -1,8 +1,8 @@
+import Icon from "@/components/ui/icon";
+import { Separator } from "@/components/ui/separator";
 import { ScheduleSong } from "@/db/schema";
 import { Copy } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
-import Icon from "./ui/icon";
-import { Separator } from "./ui/separator";
 
 interface ScheduleCardProps {
   data: ScheduleSong;

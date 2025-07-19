@@ -1,35 +1,35 @@
-import { cn } from '@/lib/utils';
-import { AlertCircle, Check, Info, X } from 'lucide-react-native';
+import Icon from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
+import { AlertCircle, Check, Info, X } from "lucide-react-native";
 import React, {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useRef,
-  useState
-} from 'react';
+  useState,
+} from "react";
 import {
   Dimensions,
   Pressable,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
+  View,
+} from "react-native";
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
-} from 'react-native-gesture-handler';
+} from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import Icon from './icon';
+} from "react-native-reanimated";
 
-export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info';
+export type ToastVariant = "default" | "success" | "error" | "warning" | "info";
 
 export interface ToastData {
   id: string;
@@ -48,7 +48,7 @@ interface ToastProps extends ToastData {
   index: number;
 }
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get("window");
 const DYNAMIC_ISLAND_HEIGHT = 37;
 const EXPANDED_HEIGHT = 85;
 const TOAST_MARGIN = 8;
@@ -59,7 +59,7 @@ export function Toast({
   id,
   title,
   description,
-  variant = 'default',
+  variant = "default",
   onDismiss,
   index,
   action,
@@ -94,8 +94,7 @@ export function Toast({
       translateY.value = withSpring(0);
       opacity.value = withTiming(1, { duration: 300 });
       scale.value = withSpring(1);
-      contentOpacity.value = withTiming(1, { duration: 300 })
-
+      contentOpacity.value = withTiming(1, { duration: 300 });
     } else {
       setIsExpanded(false);
 
@@ -120,9 +119,9 @@ export function Toast({
   const startTimeout = (time: number) => {
     timeoutRef.current = setTimeout(() => {
       runOnJS(dismiss)();
-    }, time)
+    }, time);
     startTime.current = Date.now();
-  }
+  };
 
   const pauseTimeout = () => {
     if (timeoutRef.current) {
@@ -133,39 +132,39 @@ export function Toast({
         remainingTime.current -= elapsed;
       }
     }
-  }
+  };
 
   const resumeTimeout = () => {
     if (!timeoutRef.current && remainingTime.current > 0) {
       startTimeout(remainingTime.current);
     }
-  }
+  };
 
   const getVariantColor = () => {
     switch (variant) {
-      case 'success':
-        return 'bg-green-500';
-      case 'error':
-        return 'bg-red-500';
-      case 'warning':
-        return 'bg-yellow-500';
-      case 'info':
-        return 'bg-blue-500';
+      case "success":
+        return "bg-green-500";
+      case "error":
+        return "bg-red-500";
+      case "warning":
+        return "bg-yellow-500";
+      case "info":
+        return "bg-blue-500";
       default:
-        return 'bg-primary';
+        return "bg-primary";
     }
   };
 
   const getIcon = () => {
     switch (variant) {
-      case 'success':
-        return <Icon icon={Check} className='size-6 text-green-500' />;
-      case 'error':
-        return <Icon icon={X} className='size-6 text-red-500' />;
-      case 'warning':
-        return <Icon icon={AlertCircle} className='size-6 text-yellow-500' />;
-      case 'info':
-        return <Icon icon={Info} className='size-6 text-blue-500' />;
+      case "success":
+        return <Icon icon={Check} className="size-6 text-green-500" />;
+      case "error":
+        return <Icon icon={X} className="size-6 text-red-500" />;
+      case "warning":
+        return <Icon icon={AlertCircle} className="size-6 text-yellow-500" />;
+      case "info":
+        return <Icon icon={Info} className="size-6 text-blue-500" />;
       default:
         return null;
     }
@@ -194,7 +193,7 @@ export function Toast({
         translateX.value = withTiming(
           translationX > 0 ? screenWidth : -screenWidth,
           { duration: 250 },
-          () => runOnJS(onDismiss)(id)
+          () => runOnJS(onDismiss)(id),
         );
         opacity.value = withTiming(0, { duration: 250 });
       } else {
@@ -227,50 +226,43 @@ export function Toast({
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View
-        className="absolute self-center shadow-2xl elevation-xl z"
+        className="elevation-xl z absolute self-center shadow-2xl"
         style={containerStyle}
       >
-        <Pressable
-          onPressIn={pauseTimeout}
-          onPressOut={resumeTimeout}
-        >
+        <Pressable onPressIn={pauseTimeout} onPressOut={resumeTimeout}>
           <Animated.View
-            className="bg-muted border border-border justify-center items-center overflow-hidden"
+            className="items-center justify-center overflow-hidden border border-border bg-muted"
             style={innerStyle}
           >
             {!isExpanded && (
-              <View className='justify-center items-center'>
-                {getIcon()}
-              </View>
+              <View className="items-center justify-center">{getIcon()}</View>
             )}
 
             {isExpanded && (
               <Animated.View
-                className="absolute inset-0 px-4 py-3 flex-row items-center"
+                className="absolute inset-0 flex-row items-center px-4 py-3"
                 style={contentStyle}
               >
-                {getIcon() && (
-                  <View className='mr-3'>{getIcon()}</View>
-                )}
+                {getIcon() && <View className="mr-3">{getIcon()}</View>}
 
-                <View className='flex-1 min-w-0'>
+                <View className="min-w-0 flex-1">
                   {title && (
                     <Text
                       className={cn(
-                        "text-foreground text-lg font-opensans-semibold",
+                        "font-opensans-semibold text-lg text-foreground",
                         description ? "mb-0.5" : "mb-0",
                       )}
                       numberOfLines={1}
-                      ellipsizeMode='tail'
+                      ellipsizeMode="tail"
                     >
                       {title}
                     </Text>
                   )}
                   {description && (
                     <Text
-                      className='text-muted-foreground text-base font-opensans'
+                      className="font-opensans text-base text-muted-foreground"
                       numberOfLines={2}
-                      ellipsizeMode='tail'
+                      ellipsizeMode="tail"
                     >
                       {description}
                     </Text>
@@ -281,13 +273,11 @@ export function Toast({
                   <TouchableOpacity
                     onPress={action.onPress}
                     className={cn(
-                      'ml-3 px-3 py-1.5 rounded-full',
-                      getVariantColor()
+                      "ml-3 rounded-full px-3 py-1.5",
+                      getVariantColor(),
                     )}
                   >
-                    <Text
-                      className='text-sm font-opensans-semibold text-foreground'
-                    >
+                    <Text className="font-opensans-semibold text-sm text-foreground">
                       {action.label}
                     </Text>
                   </TouchableOpacity>
@@ -295,9 +285,9 @@ export function Toast({
 
                 <TouchableOpacity
                   onPress={dismiss}
-                  className='ml-2 p-1 rounded-lg'
+                  className="ml-2 rounded-lg p-1"
                 >
-                  <Icon icon={X} className='size-4 text-muted-foreground' />
+                  <Icon icon={X} className="size-4 text-muted-foreground" />
                 </TouchableOpacity>
               </Animated.View>
             )}
@@ -309,7 +299,7 @@ export function Toast({
 }
 
 interface ToastContextType {
-  toast: (toast: Omit<ToastData, 'id'>) => void;
+  toast: (toast: Omit<ToastData, "id">) => void;
   success: (title: string, description?: string) => void;
   error: (title: string, description?: string) => void;
   warning: (title: string, description?: string) => void;
@@ -331,7 +321,7 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
   const addToast = useCallback(
-    (toastData: Omit<ToastData, 'id'>) => {
+    (toastData: Omit<ToastData, "id">) => {
       const id = generateId();
       const newToast: ToastData = {
         ...toastData,
@@ -351,7 +341,7 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
       //   }, newToast.duration);
       // }
     },
-    [maxToasts]
+    [maxToasts],
   );
 
   const dismissToast = useCallback((id: string) => {
@@ -370,28 +360,31 @@ export function ToastProvider({ children, maxToasts = 3 }: ToastProviderProps) {
         variant,
       });
     },
-    [addToast]
+    [addToast],
   );
 
   const contextValue: ToastContextType = {
     toast: addToast,
     success: (title, description) =>
-      createVariantToast('success', title, description),
+      createVariantToast("success", title, description),
     error: (title, description) =>
-      createVariantToast('error', title, description),
+      createVariantToast("error", title, description),
     warning: (title, description) =>
-      createVariantToast('warning', title, description),
+      createVariantToast("warning", title, description),
     info: (title, description) =>
-      createVariantToast('info', title, description),
+      createVariantToast("info", title, description),
     dismiss: dismissToast,
     dismissAll,
   };
 
   return (
     <ToastContext.Provider value={contextValue}>
-      <GestureHandlerRootView className='flex-1'>
+      <GestureHandlerRootView className="flex-1">
         {children}
-        <View className='absolute inset-0 z-[1000] pointer-events-box-none' pointerEvents='box-none'>
+        <View
+          className="pointer-events-box-none absolute inset-0 z-[1000]"
+          pointerEvents="box-none"
+        >
           {toasts.map((toast, index) => (
             <Toast
               key={toast.id}
@@ -411,7 +404,7 @@ export function useToast() {
   const context = useContext(ToastContext);
 
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error("useToast must be used within a ToastProvider");
   }
 
   return context;
