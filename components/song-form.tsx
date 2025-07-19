@@ -1,12 +1,21 @@
 import CustomInput from "@/components/custom-input";
 import { Picker } from "@/components/ui/picker";
 import { useToast } from "@/components/ui/toast";
-import { insertSongSchema, Song } from "@/db/schema";
+import { Song } from "@/db/schema";
 import { addSong, updateSong } from "@/lib/action";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Text, TouchableOpacity, View } from "react-native";
+import { z } from "zod";
+
+const schema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1, "Title is a required field."),
+  artist: z.string().min(1, "Artist is a required field."),
+  key: z.string().min(1, "Key is a required field."),
+});
+
+type Schema = z.infer<typeof schema>;
 
 interface SongFormProps {
   song?: Song;
@@ -15,37 +24,38 @@ interface SongFormProps {
 }
 
 const SongForm = ({ song, action, onClose }: SongFormProps) => {
-  const {toast} = useToast();
+  const { toast } = useToast();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<Omit<Song, "id">>({
-    resolver: zodResolver(insertSongSchema),
+  } = useForm<Schema>({
+    resolver: zodResolver(schema),
     defaultValues: {
+      id: song?.id || undefined,
       title: song?.title || "",
       artist: song?.artist || "",
       key: song?.key || "",
     },
   });
 
-  const onSubmit = async (data: Omit<Song, "id">) => {
-    if(action === "create") {
+  const onSubmit = async (data: Schema) => {
+    if (action === "create") {
       await addSong(data);
       toast({
         title: "Created",
         description: "Song created successfully!",
         variant: "info",
-      })
+      });
     } else {
-      await updateSong(song?.id!, data);
+      await updateSong(data.id!, data);
       toast({
         title: "Updated",
         description: "Song updated successfully!",
         variant: "info",
-      })
+      });
     }
     onClose?.(true);
   };
@@ -84,36 +94,28 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
         control={control}
         name="key"
         render={({ field: { onChange, value } }) => (
-          <View className="gap-2">
-            <Text
-              className={cn(
-                "w-full text-start font-opensans-semibold text-lg text-foreground",
-              )}
-            >
-              Key
-            </Text>
-            <Picker
-              options={[
-                { label: "A", value: "A" },
-                { label: "A# (Bb)", value: "A#" },
-                { label: "B", value: "B" },
-                { label: "C", value: "C" },
-                { label: "C# (Db)", value: "C#" },
-                { label: "D", value: "D" },
-                { label: "D# (Eb)", value: "D#" },
-                { label: "E", value: "E" },
-                { label: "F", value: "F" },
-                { label: "F# (Gb)", value: "F#" },
-                { label: "G", value: "G" },
-                { label: "G# (Ab)", value: "G#" },
-              ]}
-              modalTitle="Choose a key"
-              value={value}
-              onValueChange={onChange}
-              placeholder="Select song key"
-              error={errors.key?.message}
-            />
-          </View>
+          <Picker
+            options={[
+              { label: "A", value: "A" },
+              { label: "A# (Bb)", value: "A#" },
+              { label: "B", value: "B" },
+              { label: "C", value: "C" },
+              { label: "C# (Db)", value: "C#" },
+              { label: "D", value: "D" },
+              { label: "D# (Eb)", value: "D#" },
+              { label: "E", value: "E" },
+              { label: "F", value: "F" },
+              { label: "F# (Gb)", value: "F#" },
+              { label: "G", value: "G" },
+              { label: "G# (Ab)", value: "G#" },
+            ]}
+            label="Key"
+            modalTitle="Choose a key"
+            value={value}
+            onValueChange={onChange}
+            placeholder="Select song key"
+            error={errors.key?.message}
+          />
         )}
       />
       <View className="mt-5 justify-between gap-4">

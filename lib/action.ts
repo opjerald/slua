@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { Song, songs } from "@/db/schema";
-import { eq, like, or } from "drizzle-orm";
+import { Schedule, schedules, schedulesSongs, Song, songs } from "@/db/schema";
+import { eq, inArray, like, or } from "drizzle-orm";
 
 interface GetSongsProps {
   query: string;
@@ -9,7 +9,7 @@ interface GetSongsProps {
 export const getSongs = async ({ query }: GetSongsProps) => {
   try {
     if (!query || query.trim() === "") {
-      return await db.select().from(songs).orderBy(songs.title);
+      return await db.select().from(songs);
     }
 
     return await db
@@ -17,8 +17,23 @@ export const getSongs = async ({ query }: GetSongsProps) => {
       .from(songs)
       .where(
         or(like(songs.title, `%${query}%`), like(songs.artist, `%${query}%`)),
-      )
-      .orderBy(songs.title);
+      );
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+interface GetSongsByIds {
+  ids: number[];
+}
+
+export const getSongsByIds = async ({ ids }: GetSongsByIds) => {
+  try {
+    const rawSongs = await db.select().from(songs).where(inArray(songs.id, ids));
+    const songMap = new Map(rawSongs.map(song => [song.id, song]));
+    const orderSongs = ids.map(id => songMap.get(id)).filter(Boolean);
+
+    return orderSongs;
   } catch (error) {
     throw new Error(error as string);
   }
@@ -65,6 +80,63 @@ export const getSchedules = async () => {
       name: d.name,
       songs: d.schedulesSongs.map((ss) => ss.song),
     }));
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const addSchedule = async (
+  data: Omit<Schedule, "id">,
+  songs: number[],
+) => {
+  try {
+    const [newSchedule] = await db.insert(schedules).values(data).returning();
+
+    if (!newSchedule) throw new Error("Failed to create schedule.");
+
+    const pivotData = songs.map((id) => ({
+      schedule_id: newSchedule.id,
+      song_id: id,
+    }));
+
+    await db.insert(schedulesSongs).values(pivotData);
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const updateSchedule = async ({
+  id: scheduleId,
+  name,
+  songs,
+}: Schedule & { songs: number[] }) => {
+  try {
+    await db
+      .update(schedules)
+      .set({ name })
+      .where(eq(schedules.id, scheduleId))
+      .returning();
+
+    if (!updateSchedule) throw new Error("Failed to update schedule");
+
+    await db
+      .delete(schedulesSongs)
+      .where(eq(schedulesSongs.schedule_id, scheduleId));
+
+    const pivotTable = songs.map((id) => ({
+      schedule_id: scheduleId,
+      song_id: id,
+    }));
+
+    await db.insert(schedulesSongs).values(pivotTable);
+  } catch (error) {
+    throw new Error(error as string);
+  }
+};
+
+export const deleteSchedule = async (id: number) => {
+  try {
+    return await db.delete(schedules).where(eq(schedules.id, id)).returning();
   } catch (error) {
     throw new Error(error as string);
   }

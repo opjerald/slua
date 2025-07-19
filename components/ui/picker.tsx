@@ -2,7 +2,7 @@ import Icon from "@/components/ui/icon";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LucideIcon } from "lucide-react-native";
+import { ChevronDown } from "lucide-react-native";
 import { useState } from "react";
 import {
   Modal,
@@ -40,7 +40,6 @@ interface PickerProps {
 
   // Styling props
   label?: string;
-  icon?: LucideIcon;
   rightComponent?: React.ReactNode | (() => React.ReactNode);
   inputClassName?: string;
   labelClassName?: string;
@@ -66,7 +65,6 @@ export function Picker({
   className,
   multiple = false,
   label,
-  icon,
   rightComponent,
   inputClassName,
   labelClassName,
@@ -180,89 +178,75 @@ export function Picker({
 
   return (
     <>
-      <TouchableOpacity
-        onPress={() => !disabled && setIsOpen(true)}
-        disabled={disabled}
-        activeOpacity={1}
-        className={cn(
-          "w-full flex-row items-center rounded-full",
-          variant === "group" ? "min-h-[auto] border-0 px-0" : "border p-5",
-          variant === "outline" ? "border-border" : "border-card",
-          variant === "filled"
-            ? "border-2 border-border bg-input"
-            : "bg-transparent",
-          className,
-        )}
-      >
-        <View
-          className={cn(
-            "flex-row items-center gap-2",
-            label ? "w-32" : "w-auto",
-          )}
-          pointerEvents="none"
-        >
-          {icon && (
-            <Icon
-              icon={icon}
-              className={cn("size-4", error ? "text-destructive" : "")}
-            />
-          )}
-          {label && (
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className={cn(
-                "w-full text-start font-opensans-semibold text-lg text-primary",
-                error ? "text-destructive" : "text-primary",
-                labelClassName,
-              )}
-              pointerEvents="none"
-            >
-              {label}
-            </Text>
-          )}
-        </View>
-        <View className="flex-1 flex-row items-center justify-between bg-input">
+      <View className="w-full gap-2">
+        {label && (
           <Text
-            className={cn(
-              "font-opensans-semibold text-base text-muted-foreground",
-              selectedOptions.length > 0 && "text-foreground",
-              disabled && "text-muted-foreground",
-              inputClassName,
-            )}
             numberOfLines={1}
             ellipsizeMode="tail"
+            className={cn(
+              "w-full text-start font-opensans-semibold text-lg text-foreground",
+              labelClassName,
+            )}
           >
-            {getDisplayText()}
+            {label}
           </Text>
-          {rightComponent ? (
-            typeof rightComponent === "function" ? (
-              rightComponent()
-            ) : (
-              rightComponent
-            )
-          ) : (
-            <Icon
-              icon={ChevronDown}
-              className="text-muted-foreground"
-              style={{
-                transform: [{ rotate: isOpen ? "180deg" : "0deg" }],
-              }}
-            />
-          )}
-        </View>
-      </TouchableOpacity>
-      {/* Error message */}
-      {error && (
-        <Text
+        )}
+        <TouchableOpacity
+          onPress={() => !disabled && setIsOpen(true)}
+          disabled={disabled}
+          activeOpacity={1}
           className={cn(
-            "mt-1 font-opensans text-base text-destructive",
-            errorClassName,
+            "w-full flex-row items-center rounded-full",
+            variant === "group" ? "min-h-[auto] border-0 px-0" : "border p-5",
+            variant === "outline" ? "border-border" : "border-card",
+            variant === "filled"
+              ? "border-2 border-border bg-input"
+              : "bg-transparent",
+            className,
           )}
         >
-          {error}
-        </Text>
-      )}
+          <View className="flex-1 flex-row items-center justify-between bg-input">
+            <Text
+              className={cn(
+                "font-opensans-semibold text-base text-muted-foreground",
+                selectedOptions.length > 0 && "text-foreground",
+                disabled && "text-muted-foreground",
+                inputClassName,
+              )}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {getDisplayText()}
+            </Text>
+            {rightComponent ? (
+              typeof rightComponent === "function" ? (
+                rightComponent()
+              ) : (
+                rightComponent
+              )
+            ) : (
+              <Icon
+                icon={ChevronDown}
+                className="text-muted-foreground"
+                style={{
+                  transform: [{ rotate: isOpen ? "180deg" : "0deg" }],
+                }}
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+        {error && (
+          <Text
+            className={cn(
+              "font-opensans-semibold text-base text-destructive",
+              errorClassName,
+            )}
+          >
+            {error}
+          </Text>
+        )}
+      </View>
+
       <Modal
         visible={isOpen}
         transparent

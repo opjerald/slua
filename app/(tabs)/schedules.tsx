@@ -1,9 +1,12 @@
 import ScheduleCard from "@/components/schedule-card";
+import ScheduleForm from "@/components/schedule-form";
 import { ActionSheet } from "@/components/ui/action-sheet";
+import { showConfirmAlert } from "@/components/ui/alert";
+import { BottomSheet, useBottomSheet } from "@/components/ui/bottom-sheet";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/toast";
 import { ScheduleSong } from "@/db/schema";
-import { getSchedules } from "@/lib/action";
+import { deleteSchedule, getSchedules } from "@/lib/action";
 import useQuery from "@/lib/use-query";
 import * as Clipboard from "expo-clipboard";
 import { Copy, Edit2, Eye, Plus, Trash } from "lucide-react-native";
@@ -15,12 +18,15 @@ const Schedules = () => {
   const { toast } = useToast();
 
   const [isVisible, setIsVisible] = useState(false);
+  const { close, isVisible: bottomSheetIsVisible, open } = useBottomSheet();
+  const [formTitle, setFormTitle] = useState("Add Schedule");
+  const [action, setAction] = useState<"create" | "update">("create");
 
   const [selectedSchedule, setSelectedSchedule] = useState<
     ScheduleSong | undefined
   >(undefined);
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     fn: getSchedules,
   });
 
@@ -32,6 +38,22 @@ const Schedules = () => {
       description: "Schedule successfully copied to clipboard",
       variant: "info",
     });
+  };
+
+  const handleConfirmAlert = () => {
+    showConfirmAlert(
+      "Delete Song",
+      "Are you sure you want to delete this schedule?",
+      async () => {
+        await deleteSchedule(selectedSchedule?.id!);
+        refetch({});
+        toast({
+          title: "Success",
+          description: "Schedule deleted successfully!",
+          variant: "success",
+        });
+      },
+    );
   };
 
   return (
@@ -49,14 +71,19 @@ const Schedules = () => {
         </View>
         <TouchableOpacity
           className="flex size-10 items-center justify-center rounded-full bg-primary"
-          onPress={() => {}}
+          onPress={() => {
+            setFormTitle("Add Schedule");
+            setAction("create");
+            setSelectedSchedule(undefined);
+            open();
+          }}
         >
           <Icon icon={Plus} className="size-6 text-white" />
         </TouchableOpacity>
       </View>
       <FlatList
         data={data}
-        keyExtractor={(item) => item + ""}
+        keyExtractor={(item) => item.id + ""}
         renderItem={({ item }) => (
           <ScheduleCard
             data={item}
@@ -94,18 +121,40 @@ const Schedules = () => {
           {
             title: "Edit",
             onPress: () => {
+              setFormTitle("Edit Schedule");
+              setAction("update");
               open();
             },
             icon: <Icon icon={Edit2} className="text-foreground" />,
           },
           {
             title: "Delete",
-            onPress: () => console.log("asd"),
+            onPress: () => handleConfirmAlert(),
             icon: <Icon icon={Trash} className="text-destructive" />,
             destructive: true,
           },
         ]}
       />
+      <BottomSheet
+        isVisible={bottomSheetIsVisible}
+        onClose={close}
+        title={formTitle}
+        snapPoints={[0.95]}
+      >
+        <ScheduleForm
+          data={selectedSchedule}
+          action={action}
+          onClose={(success) => {
+            if (success) {
+              refetch({});
+            }
+            setFormTitle("Add Song");
+            setAction("create");
+            setSelectedSchedule(undefined);
+            close();
+          }}
+        />
+      </BottomSheet>
     </SafeAreaView>
   );
 };

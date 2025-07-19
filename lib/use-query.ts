@@ -14,7 +14,7 @@ interface UseQueryReturn<T, P> {
   refetch: (newParams: P) => Promise<void>;
 }
 
-const useQuery = <T, P extends Record<string, string | number>>({
+const useQuery = <T, P extends Record<string, any>>({
   fn,
   params = {} as P,
   skip = false,
