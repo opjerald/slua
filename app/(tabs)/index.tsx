@@ -133,7 +133,7 @@ const Index = () => {
         isVisible={bottomSheetIsVisible}
         onClose={close}
         title={formTitle}
-        snapPoints={[0.95]}
+        snapPoints={[1]}
       >
         <SongForm
           song={selectedSong}

@@ -139,7 +139,7 @@ const Schedules = () => {
         isVisible={bottomSheetIsVisible}
         onClose={close}
         title={formTitle}
-        snapPoints={[0.95]}
+        snapPoints={[1]}
       >
         <ScheduleForm
           data={selectedSchedule}

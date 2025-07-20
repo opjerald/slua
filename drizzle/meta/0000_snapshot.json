@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7024d1c8-0896-45ce-a61e-9f351d435871",
+  "id": "2c6bdb2a-018b-4d90-ba84-144dd167ae82",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "schedules": {
@@ -58,7 +58,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "schedule_song_song_id_songs_id_fk": {
@@ -71,7 +71,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

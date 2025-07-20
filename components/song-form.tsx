@@ -45,16 +45,16 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
     if (action === "create") {
       await addSong(data);
       toast({
-        title: "Created",
+        title: "Success",
         description: "Song created successfully!",
-        variant: "info",
+        variant: "success",
       });
     } else {
       await updateSong(data.id!, data);
       toast({
-        title: "Updated",
+        title: "Success",
         description: "Song updated successfully!",
-        variant: "info",
+        variant: "success",
       });
     }
     onClose?.(true);
