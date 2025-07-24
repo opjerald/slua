@@ -55,7 +55,7 @@ const CustomInput = ({
         }}
         placeholderTextColor={NAV_THEME[colorScheme].mutedForeground}
         className={cn(
-          "w-full rounded-full border-2 bg-input p-5 font-opensans-semibold text-base text-foreground",
+          "w-full rounded-2xl border-2 bg-input p-5 font-opensans-semibold text-base text-foreground",
           isFocused ? "border-primary" : "border-border",
         )}
       />

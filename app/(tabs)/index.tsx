@@ -10,7 +10,7 @@ import { Song } from "@/db/schema";
 import useDebounce from "@/hooks/use-debounced";
 import { deleteSong, getSongs } from "@/lib/action";
 import useQuery from "@/lib/use-query";
-import { Edit2, Eye, Plus, Trash } from "lucide-react-native";
+import { Edit2, Plus, Trash } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -81,7 +81,7 @@ const Index = () => {
             <Icon icon={Plus} className="size-6 text-white" />
           </TouchableOpacity>
         </View>
-        <SearchBar value={query} onChangeText={setQuery}/>
+        <SearchBar placeholder="Search for songs, artists, etc..." value={query} onChangeText={setQuery}/>
       </View>
       <FlatList
         data={data}
@@ -98,7 +98,7 @@ const Index = () => {
         contentContainerClassName="px-5"
         ListEmptyComponent={() => (
           <View className="flex-1 items-center justify-center">
-            <Text className="text-xl font-opensans-semibold text-muted-foreground">No songs found</Text>
+            <Text className="text-base font-opensans-semibold text-muted-foreground">No songs yet</Text>
           </View>
         )}
       />
@@ -107,11 +107,6 @@ const Index = () => {
         visible={isVisible}
         onClose={() => setIsVisible(false)}
         options={[
-          {
-            title: "View",
-            onPress: () => console.log("View"),
-            icon: <Icon icon={Eye} className="text-foreground" />,
-          },
           {
             title: "Edit",
             onPress: () => {
@@ -128,12 +123,14 @@ const Index = () => {
             destructive: true,
           },
         ]}
+        containerClassName="z-10"
       />
       <BottomSheet
         isVisible={bottomSheetIsVisible}
         onClose={close}
         title={formTitle}
         snapPoints={[1]}
+        containerClassName="z-10"
       >
         <SongForm
           song={selectedSong}

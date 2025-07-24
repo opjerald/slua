@@ -159,7 +159,7 @@ const ScheduleForm = ({ action, data, onClose }: ScheduleFormProps) => {
       )}
       <View className="justify-between gap-4">
         <TouchableOpacity
-          className="rounded-full border border-primary bg-primary p-5"
+          className="rounded-2xl border border-primary bg-primary p-5"
           onPress={handleSubmit(onSubmit)}
           activeOpacity={0.8}
         >
@@ -168,7 +168,7 @@ const ScheduleForm = ({ action, data, onClose }: ScheduleFormProps) => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className=" rounded-full border border-border bg-accent p-5"
+          className=" rounded-2xl border border-border bg-accent p-5"
           activeOpacity={0.8}
           onPress={() => {
             reset();

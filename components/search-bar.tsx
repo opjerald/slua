@@ -6,10 +6,12 @@ import { Keyboard, TextInput, TouchableOpacity, View } from "react-native";
 
 interface SearchBarProps {
   value?: string;
+  placeholder?: string;
   onChangeText?: (value: string) => void;
+  editable?: boolean;
 }
 
-const SearchBar = ({ value, onChangeText }: SearchBarProps) => {
+const SearchBar = ({ value, editable, placeholder = "Search...", onChangeText }: SearchBarProps) => {
   const { colorScheme } = useColorScheme();
   return (
     <View className="relative flex w-full flex-row items-center justify-center gap-1 rounded-full bg-input font-opensans-medium text-muted-foreground shadow-md shadow-black/10">
@@ -18,12 +20,13 @@ const SearchBar = ({ value, onChangeText }: SearchBarProps) => {
       </View>
       <TextInput
         className="flex-1 py-5 font-opensans text-base text-foreground"
-        placeholder="Search for songs, artists, etc..."
+        placeholder={placeholder}
         placeholderTextColor={NAV_THEME[colorScheme].mutedForeground}
         onChangeText={onChangeText}
         value={value}
         onSubmitEditing={(e) => onChangeText?.(e.nativeEvent.text)}
         returnKeyType="search"
+        editable={editable}
       />
       {!!value && (
         <TouchableOpacity

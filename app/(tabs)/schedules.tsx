@@ -97,7 +97,7 @@ const Schedules = () => {
         contentContainerClassName="px-5"
         ListEmptyComponent={() => (
           <View className="flex-1 items-center justify-center">
-            <Text className="font-opensans-semibold text-xl text-muted-foreground">
+            <Text className="font-opensans-semibold text-base text-muted-foreground">
               No schedules yet
             </Text>
           </View>
