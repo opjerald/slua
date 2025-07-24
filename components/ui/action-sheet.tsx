@@ -1,19 +1,27 @@
+import { useBackHandler } from "@/hooks/use-backhandler";
 import { cn } from "@/lib/utils";
+import { Portal } from "@rn-primitives/portal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActionSheetIOS,
-  Animated,
   Dimensions,
-  Modal,
   Platform,
   Pressable,
   Text,
   TouchableOpacity,
-  useAnimatedValue,
   View,
   ViewStyle,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import Animated, {
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+
+const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 export interface ActionSheetOption {
   title: string;
@@ -31,6 +39,7 @@ interface ActionSheetProps {
   options: ActionSheetOption[];
   cancelButtonTitle?: string;
   style?: ViewStyle;
+  containerClassName?: string;
 }
 
 export function ActionSheet({
@@ -41,6 +50,7 @@ export function ActionSheet({
   options,
   cancelButtonTitle = "Cancel",
   style,
+  containerClassName,
 }: ActionSheetProps) {
   if (Platform.OS === "ios") {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -91,6 +101,7 @@ export function ActionSheet({
         options,
         cancelButtonTitle,
         style,
+        containerClassName,
       }}
     />
   );
@@ -103,49 +114,44 @@ function AndroidActionSheet({
   message,
   options,
   cancelButtonTitle,
+  containerClassName,
 }: ActionSheetProps) {
-  const [modalVisible, setModalVisible] = useState(false);
+  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const backdropOpacity = useSharedValue(0);
+  const [mounted, setMounted] = useState(false);
 
-  const slideAnim = useAnimatedValue(0);
-  const backgroundOpacity = useAnimatedValue(0);
+  useBackHandler(() => {
+    if (!visible) return false;
 
-  const screenHeight = Dimensions.get("window").height;
+    onClose();
+    return true;
+  });
 
   useEffect(() => {
     if (visible) {
-      setModalVisible(true);
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      setMounted(true);
+      translateY.value = withTiming(0, { duration: 300 });
+      backdropOpacity.value = withTiming(1, { duration: 300 });
     } else {
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(backgroundOpacity, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setModalVisible(false));
+      translateY.value = withTiming(
+        SCREEN_HEIGHT,
+        { duration: 250 },
+        (finished) => {
+          if (finished) runOnJS(setMounted)(false);
+        },
+      );
+      backdropOpacity.value = withTiming(0, { duration: 250 });
     }
-  }, [visible, slideAnim, backgroundOpacity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
-  const translateY = slideAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [screenHeight, 0],
-  });
+  const translateYStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(backdropOpacity.value, [0, 1], [0, 1]),
+  }));
 
   const handleOptionPress = (option: ActionSheetOption) => {
     if (!option.disabled) {
@@ -158,28 +164,22 @@ function AndroidActionSheet({
     onClose();
   };
 
+  if (!mounted) return null;
+
   return (
-    <Modal
-      transparent
-      visible={modalVisible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
-      <View className="flex-1 justify-end">
+    <Portal name="action-sheet">
+      <View
+        className={cn("absolute inset-0 z-10 justify-end", containerClassName)}
+      >
         <Animated.View
-          style={{
-            opacity: backgroundOpacity,
-          }}
-          className={"absolute inset-0 bg-black/50"}
+          style={backdropStyle}
+          className="absolute inset-0 bg-black/50"
         >
           <Pressable className="flex-1" onPress={handleBackdropPress} />
         </Animated.View>
 
         <Animated.View
-          style={{
-            transform: [{ translateY }],
-          }}
+          style={translateYStyle}
           className="elevation-xl max-h-[80%] rounded-t-2xl bg-card pb-8 shadow-xl"
         >
           {/* Header */}
@@ -242,7 +242,7 @@ function AndroidActionSheet({
             ))}
           </ScrollView>
 
-          <View className="mt-2 border-t border-border">
+          <View className="mb-8">
             <TouchableOpacity
               className="items-center px-5 py-4 text-foreground"
               onPress={onClose}
@@ -255,7 +255,7 @@ function AndroidActionSheet({
           </View>
         </Animated.View>
       </View>
-    </Modal>
+    </Portal>
   );
 }
 

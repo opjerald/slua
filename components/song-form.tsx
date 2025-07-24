@@ -5,7 +5,7 @@ import { Song } from "@/db/schema";
 import { addSong, updateSong } from "@/lib/action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { z } from "zod";
 
 const schema = z.object({
@@ -61,87 +61,91 @@ const SongForm = ({ song, action, onClose }: SongFormProps) => {
   };
 
   return (
-    <View className="gap-4">
-      <Controller
-        control={control}
-        name="title"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <CustomInput
-            label="Title"
-            placeholder="Enter song title"
-            onChangeText={onChange}
-            onBlur={onBlur}
-            value={value}
-            error={errors.title?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="artist"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <CustomInput
-            label="Artist"
-            placeholder="Enter song title"
-            onChangeText={onChange}
-            onBlur={onBlur}
-            value={value}
-            error={errors.artist?.message}
-          />
-        )}
-      />
-      <Controller
-        control={control}
-        name="key"
-        render={({ field: { onChange, value } }) => (
-          <Picker
-            options={[
-              { label: "A", value: "A" },
-              { label: "A# (Bb)", value: "A#" },
-              { label: "B", value: "B" },
-              { label: "C", value: "C" },
-              { label: "C# (Db)", value: "C#" },
-              { label: "D", value: "D" },
-              { label: "D# (Eb)", value: "D#" },
-              { label: "E", value: "E" },
-              { label: "F", value: "F" },
-              { label: "F# (Gb)", value: "F#" },
-              { label: "G", value: "G" },
-              { label: "G# (Ab)", value: "G#" },
-            ]}
-            label="Key"
-            modalTitle="Choose a key"
-            value={value}
-            onValueChange={onChange}
-            placeholder="Select song key"
-            error={errors.key?.message}
-          />
-        )}
-      />
-      <View className="mt-5 justify-between gap-4">
-        <TouchableOpacity
-          className="rounded-full border border-primary bg-primary p-5"
-          onPress={handleSubmit(onSubmit)}
-          activeOpacity={0.8}
-        >
-          <Text className="text-center font-opensans-semibold text-base text-primary-foreground">
-            {action === "create" ? "Create" : "Update"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className=" rounded-full border border-border bg-accent p-5"
-          activeOpacity={0.8}
-          onPress={() => {
-            reset();
-            onClose?.(false);
-          }}
-        >
-          <Text className="text-center font-opensans-semibold text-base text-accent-foreground">
-            Cancel
-          </Text>
-        </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View className="gap-4">
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <CustomInput
+              label="Title"
+              placeholder="Enter song title"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              error={errors.title?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="artist"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <CustomInput
+              label="Artist"
+              placeholder="Enter song title"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              error={errors.artist?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="key"
+          render={({ field: { onChange, value } }) => (
+            <Picker
+              options={[
+                { label: "A", value: "A" },
+                { label: "A# (Bb)", value: "A#" },
+                { label: "B", value: "B" },
+                { label: "C", value: "C" },
+                { label: "C# (Db)", value: "C#" },
+                { label: "D", value: "D" },
+                { label: "D# (Eb)", value: "D#" },
+                { label: "E", value: "E" },
+                { label: "F", value: "F" },
+                { label: "F# (Gb)", value: "F#" },
+                { label: "G", value: "G" },
+                { label: "G# (Ab)", value: "G#" },
+              ]}
+              label="Key"
+              modalTitle="Choose a key"
+              value={value}
+              onValueChange={onChange}
+              placeholder="Select song key"
+              error={errors.key?.message}
+              containerClassName="z-20"
+              searchable
+            />
+          )}
+        />
+        <View className="mt-5 justify-between gap-4">
+          <TouchableOpacity
+            className="rounded-2xl border border-primary bg-primary p-5"
+            onPress={handleSubmit(onSubmit)}
+            activeOpacity={0.8}
+          >
+            <Text className="text-center font-opensans-semibold text-base text-primary-foreground">
+              {action === "create" ? "Create" : "Update"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className=" rounded-2xl border border-border bg-accent p-5"
+            activeOpacity={0.8}
+            onPress={() => {
+              reset();
+              onClose?.(false);
+            }}
+          >
+            <Text className="text-center font-opensans-semibold text-base text-accent-foreground">
+              Cancel
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

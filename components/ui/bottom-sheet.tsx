@@ -1,12 +1,13 @@
+import { useBackHandler } from "@/hooks/use-backhandler";
+import { cn } from "@/lib/utils";
+import { Portal } from "@rn-primitives/portal";
 import React, { useEffect } from "react";
 import {
   Dimensions,
   Keyboard,
-  Modal,
   Text,
   TouchableWithoutFeedback,
   View,
-  ViewStyle
 } from "react-native";
 import {
   Gesture,
@@ -31,7 +32,8 @@ type BottomSheetProps = {
   snapPoints?: number[];
   enableBackdropDismiss?: boolean;
   title?: string;
-  style?: ViewStyle;
+  className?: string;
+  containerClassName?: string;
 };
 
 export function BottomSheet({
@@ -41,7 +43,8 @@ export function BottomSheet({
   snapPoints = [0.3, 0.6, 0.9],
   enableBackdropDismiss = true,
   title,
-  style,
+  className,
+  containerClassName,
 }: BottomSheetProps) {
   const translateY = useSharedValue(0);
   const context = useSharedValue({ y: 0 });
@@ -53,6 +56,13 @@ export function BottomSheet({
 
   // Delayed modal close to allow animation to complete
   const [modalVisible, setModalVisible] = React.useState(false);
+
+  useBackHandler(() => {
+    if(!isVisible) return false;
+
+    onClose();
+    return true;
+  })
 
   useEffect(() => {
     if (isVisible) {
@@ -74,7 +84,8 @@ export function BottomSheet({
         }
       });
     }
-  }, [isVisible, defaultHeight, translateY, opacity]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible, defaultHeight]);
 
   const scrollTo = (destination: number) => {
     "worklet";
@@ -155,57 +166,62 @@ export function BottomSheet({
   const handleBackdropPress = () => {
     if (enableBackdropDismiss) {
       // Use animated close instead of direct onClose
-      animateClose();
+      // animateClose();
+      onClose();
     }
   };
 
+  if (!modalVisible) return null;
+
   return (
-    <Modal
-      visible={modalVisible}
-      transparent
-      statusBarTranslucent
-      animationType="none"
-      onRequestClose={() => animateClose()}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <GestureHandlerRootView className="flex-1">
-          <Animated.View style={rBackdropStyle} className="flex-1 bg-black/50">
-            <TouchableWithoutFeedback onPress={handleBackdropPress}>
-              <Animated.View className="flex-1" />
-            </TouchableWithoutFeedback>
+    <Portal name="bottom-sheet">
+      <View
+        className={cn("absolute inset-0 z-20 justify-end", containerClassName)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <GestureHandlerRootView className="flex-1">
+            <Animated.View
+              style={rBackdropStyle}
+              className="flex-1 bg-black/50"
+            >
+              <TouchableWithoutFeedback onPress={handleBackdropPress}>
+                <Animated.View className="flex-1" />
+              </TouchableWithoutFeedback>
 
-            <GestureDetector gesture={gesture}>
-              <Animated.View
-                style={[
-                  {
-                    height: SCREEN_HEIGHT,
-                    top: SCREEN_HEIGHT,
-                  },
-                  rBottomSheetStyle,
-                  style,
-                ]}
-                className="absolute w-full rounded-t-2xl bg-card"
-              >
-                {/* Handle */}
-                <View className="mt-4 h-1.5 w-16 self-center rounded-full bg-accent-foreground" />
+              <GestureDetector gesture={gesture}>
+                <Animated.View
+                  style={[
+                    {
+                      top: SCREEN_HEIGHT,
+                    },
+                    rBottomSheetStyle,
+                  ]}
+                  className={cn(
+                    "absolute h-full w-full rounded-t-2xl bg-card",
+                    className,
+                  )}
+                >
+                  {/* Handle */}
+                  <View className="mt-4 h-1.5 w-16 self-center rounded-full bg-accent-foreground" />
 
-                {/* Title */}
-                {title && (
-                  <View className="mx-4 mt-5 pb-2">
-                    <Text className="text-center font-opensans-bold text-2xl text-foreground">
-                      {title}
-                    </Text>
-                  </View>
-                )}
+                  {/* Title */}
+                  {title && (
+                    <View className="mx-4 mt-5 pb-2">
+                      <Text className="text-center font-opensans-bold text-2xl text-foreground">
+                        {title}
+                      </Text>
+                    </View>
+                  )}
 
-                {/* Content */}
-                <View className="flex-1 p-4">{children}</View>
-              </Animated.View>
-            </GestureDetector>
-          </Animated.View>
-        </GestureHandlerRootView>
-      </TouchableWithoutFeedback>
-    </Modal>
+                  {/* Content */}
+                  <View className="flex-1 p-4">{children}</View>
+                </Animated.View>
+              </GestureDetector>
+            </Animated.View>
+          </GestureHandlerRootView>
+        </TouchableWithoutFeedback>
+      </View>
+    </Portal>
   );
 }
 

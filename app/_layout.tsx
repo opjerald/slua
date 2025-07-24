@@ -11,6 +11,7 @@ import {
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
 import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
 import { useFonts } from "expo-font";
@@ -86,6 +87,7 @@ const RootLayout = () => {
                 headerShown: false,
               }}
             />
+            <PortalHost />
           </SQLiteProvider>
         </Suspense>
       </ToastProvider>

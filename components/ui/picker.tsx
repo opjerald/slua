@@ -1,18 +1,32 @@
 import Icon from "@/components/ui/icon";
+import { useBackHandler } from "@/hooks/use-backhandler";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Portal } from "@rn-primitives/portal";
 import { ChevronDown } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Modal,
+  Dimensions,
+  Keyboard,
   Pressable,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import Animated, {
+  runOnJS,
+  useAnimatedKeyboard,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export interface PickerOption {
   label: string;
@@ -44,6 +58,7 @@ interface PickerProps {
   inputClassName?: string;
   labelClassName?: string;
   errorClassName?: string;
+  containerClassName?: string;
 
   // Modal props
   modalTitle?: string;
@@ -69,13 +84,53 @@ export function Picker({
   inputClassName,
   labelClassName,
   errorClassName,
+  containerClassName,
   modalTitle,
   searchable = false,
   searchPlaceholder = "Search options...",
 }: PickerProps) {
+  const translateY = useSharedValue(SCREEN_HEIGHT);
+  const opacity = useSharedValue(0);
+  const keyboard = useAnimatedKeyboard();
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { colorScheme } = useColorScheme();
+
+  useBackHandler(() => {
+    if (!isOpen) return false;
+
+    animateClose();
+    return true;
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      translateY.value = withSpring(0, { damping: 50, stiffness: 400 });
+      opacity.value = withTiming(1, { duration: 300 });
+    } else {
+      translateY.value = withSpring(SCREEN_HEIGHT, {
+        damping: 50,
+        stiffness: 400,
+      });
+      opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+        if (finished) {
+          animateClose();
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const pickerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  const keyboardStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: -keyboard.height.value }],
+  }));
 
   const normalizedSections: PickerSection[] =
     sections.length > 0 ? sections : [{ options }];
@@ -106,6 +161,20 @@ export function Picker({
 
   const selectedOptions = getSelectedOptions();
 
+  const animateClose = () => {
+    "worklet";
+
+    translateY.value = withSpring(SCREEN_HEIGHT, {
+      damping: 50,
+      stiffness: 400,
+    });
+    opacity.value = withTiming(0, { duration: 300 }, (finished) => {
+      if (finished) {
+        runOnJS(setIsOpen)(false);
+      }
+    });
+  };
+
   const handleSelect = (optionValue: string) => {
     if (multiple) {
       const newValues = values.includes(optionValue)
@@ -116,7 +185,7 @@ export function Picker({
     }
 
     onValueChange?.(optionValue);
-    setIsOpen(false);
+    animateClose();
   };
 
   const getDisplayText = () => {
@@ -191,12 +260,14 @@ export function Picker({
             {label}
           </Text>
         )}
-        <TouchableOpacity
-          onPress={() => !disabled && setIsOpen(true)}
+        <Pressable
+          onPress={() => {
+            if (!disabled) setIsOpen(true);
+            Keyboard.dismiss();
+          }}
           disabled={disabled}
-          activeOpacity={1}
           className={cn(
-            "w-full flex-row items-center rounded-full",
+            "w-full flex-row items-center rounded-2xl",
             variant === "group" ? "min-h-[auto] border-0 px-0" : "border p-5",
             variant === "outline" ? "border-border" : "border-card",
             variant === "filled"
@@ -205,7 +276,7 @@ export function Picker({
             className,
           )}
         >
-          <View className="flex-1 flex-row items-center justify-between bg-input">
+          <View className="flex-1 flex-row items-center justify-between">
             <Text
               className={cn(
                 "font-opensans-semibold text-base text-muted-foreground",
@@ -234,7 +305,7 @@ export function Picker({
               />
             )}
           </View>
-        </TouchableOpacity>
+        </Pressable>
         {error && (
           <Text
             className={cn(
@@ -246,100 +317,95 @@ export function Picker({
           </Text>
         )}
       </View>
-
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={() => setIsOpen(false)}
-      >
-        <Pressable
-          className="flex-1 items-center justify-end bg-black/50"
-          onPress={() => setIsOpen(false)}
-        >
-          <Pressable
-            className="max-h-[70%] w-full overflow-hidden rounded-t-2xl bg-card pb-8"
-            onPress={(e) => e.stopPropagation()}
+      {isOpen && (
+        <Portal name="picker">
+          <View
+            className={cn(
+              "absolute inset-0 z-20 justify-end",
+              containerClassName,
+            )}
           >
-            {/* Header */}
-            {(modalTitle || multiple) && (
-              <View className="flex-row items-center justify-between border-b border-b-border p-4">
-                <Text className="font-opensans-bold text-2xl text-foreground">
-                  {modalTitle || "Select Options"}
-                </Text>
-                {multiple && (
-                  <TouchableOpacity onPress={() => setIsOpen(false)}>
-                    <Text className="font-opensans-medium text-primary">
-                      Done
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-            {/* Search */}
-            {searchable && (
-              <View className="border-b border-b-border px-4 py-2">
-                <TextInput
-                  className="rounded-lg py-3 text-base text-foreground"
-                  placeholder={searchPlaceholder}
-                  placeholderTextColor={NAV_THEME[colorScheme].mutedForeground}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-              </View>
-            )}
-            {/* Options - Updated to match date-picker styling */}
-            <View className="h-[300px]">
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingVertical: 20,
-                  paddingHorizontal: 16,
-                }}
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <Animated.View
+                className="flex-1 bg-black/50"
+                style={backdropStyle}
               >
-                {filteredSections.map((section, sectionIndex) => (
-                  <View key={sectionIndex}>
-                    {section.title && (
-                      <View
-                        style={{
-                          paddingHorizontal: 4,
-                          paddingVertical: 12,
-                          marginBottom: 8,
-                        }}
-                      >
-                        <Text className="font-opensans-semibold text-xs tracking-[0.5] text-muted-foreground">
-                          {section.title}
-                        </Text>
-                      </View>
-                    )}
-                    {section.options.map((option) =>
-                      renderOption(option, sectionIndex),
-                    )}
+                <TouchableWithoutFeedback onPress={() => animateClose()}>
+                  <Animated.View className="flex-1" />
+                </TouchableWithoutFeedback>
+
+                <Animated.View
+                  className="max-h-[70%] w-full overflow-hidden rounded-t-2xl bg-card pb-8"
+                  style={[pickerStyle, keyboardStyle]}
+                >
+                  {/* Header */}
+                  {(modalTitle || multiple) && (
+                    <View className="flex-row items-center justify-between border-b border-b-border p-4">
+                      <Text className="font-opensans-bold text-2xl text-foreground">
+                        {modalTitle || "Select Options"}
+                      </Text>
+                      {multiple && (
+                        <TouchableOpacity onPress={() => animateClose()}>
+                          <Text className="font-opensans-medium text-primary">
+                            Done
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+                  {/* Search */}
+                  {searchable && (
+                    <View className="border-b border-b-border px-4 py-2">
+                      <TextInput
+                        className="rounded-lg py-3 text-base text-foreground"
+                        placeholder={searchPlaceholder}
+                        placeholderTextColor={
+                          NAV_THEME[colorScheme].mutedForeground
+                        }
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                      />
+                    </View>
+                  )}
+                  {/* Options - Updated to match date-picker styling */}
+                  <View className={cn("mb-5 h-[300px]")}>
+                    <ScrollView
+                      showsVerticalScrollIndicator={false}
+                      contentContainerClassName="px-4 py-5"
+                    >
+                      {filteredSections.map((section, sectionIndex) => (
+                        <View key={sectionIndex}>
+                          {section.title && (
+                            <View className="mb-2 px-1 py-3">
+                              <Text className="font-opensans-semibold text-xs tracking-[0.5] text-muted-foreground">
+                                {section.title}
+                              </Text>
+                            </View>
+                          )}
+                          {section.options.map((option) =>
+                            renderOption(option, sectionIndex),
+                          )}
+                        </View>
+                      ))}
+                      {filteredSections.every(
+                        (section) => section.options.length === 0,
+                      ) && (
+                        <View className="items-center px-4 py-5">
+                          <Text className="font-opensans text-base text-muted-foreground">
+                            {searchQuery
+                              ? "No results found"
+                              : "No options available"}
+                          </Text>
+                        </View>
+                      )}
+                    </ScrollView>
                   </View>
-                ))}
-                {filteredSections.every(
-                  (section) => section.options.length === 0,
-                ) && (
-                  <View
-                    style={{
-                      paddingHorizontal: 16,
-                      paddingVertical: 24,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text className="text-base text-muted-foreground">
-                      {searchQuery
-                        ? "No results found"
-                        : "No options available"}
-                    </Text>
-                  </View>
-                )}
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+                </Animated.View>
+              </Animated.View>
+            </TouchableWithoutFeedback>
+          </View>
+        </Portal>
+      )}
     </>
   );
 }
